@@ -30,16 +30,16 @@ spec:
             - containerPort: 27017 # Port default untuk MongoDB
           env:
             - name: MONGO_INITDB_ROOT_USERNAME_FILE
-              value: /etc/mongo-secrets/MONGO_INITDB_ROOT_USERNAME
+              value: /etc/mongo-credentials/MONGO_INITDB_ROOT_USERNAME
             - name: MONGO_INITDB_ROOT_PASSWORD_FILE
-              value: /etc/mongo-secrets/MONGO_INITDB_ROOT_PASSWORD
+              value: /etc/mongo-credentials/MONGO_INITDB_ROOT_PASSWORD
           volumeMounts:
             - name: mongo-data-vol
               mountPath: /data/db # Direktori penyimpanan data MongoDB
             - name: mongo-config-vol
               mountPath: /config # Direktori untuk konfigurasi tambahan
             - name: mongo-secret-vol
-              mountPath: /etc/mongo-secrets # Direktori untuk kredensial MongoDB
+              mountPath: /etc/mongo-credentials # Direktori untuk kredensial MongoDB
       volumes:
         - name: mongo-data-vol
           persistentVolumeClaim:
