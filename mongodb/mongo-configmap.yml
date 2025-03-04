@@ -1,0 +1,8 @@
+apiVersion: v1 # Menentukan versi API Kubernetes yang digunakan
+kind: ConfigMap # Menentukan jenis objek, dalam hal ini ConfigMap untuk menyimpan konfigurasi
+metadata: # Bagian metadata berisi informasi identifikasi ConfigMap
+  name: karsajobs-db-config # Menentukan nama ConfigMap agar dapat direferensikan oleh resource lain
+data: # Data konfigurasi yang disimpan dalam ConfigMap
+  mongo.conf: |
+    storage:                  # Bagian konfigurasi penyimpanan MongoDB
+      dbPath: /data/db        # Menentukan lokasi direktori tempat database akan disimpan

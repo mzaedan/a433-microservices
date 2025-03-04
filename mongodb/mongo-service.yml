@@ -1,0 +1,15 @@
+apiVersion: v1 # Menentukan versi API Kubernetes yang digunakan
+kind: Service # Jenis sumber daya yang dibuat adalah Service
+metadata:
+  name: mongo-service # Nama Service yang digunakan untuk MongoDB
+  labels:
+    app: mongo # Label untuk identifikasi sumber daya
+    tier: database # Menandakan bahwa ini adalah bagian dari lapisan database
+
+spec:
+  clusterIP: None # Membuat Service tanpa IP Cluster, digunakan untuk StatefulSet atau replika
+  selector:
+    app: mongo # Service ini akan mengelola Pod dengan label app=mongo
+    tier: database # Memastikan hanya Pod yang sesuai yang dapat terhubung
+  ports:
+    - port: 27017 # Port MongoDB yang akan diekspos dalam cluster

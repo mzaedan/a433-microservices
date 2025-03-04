@@ -1,0 +1,55 @@
+apiVersion: apps/v1 # Menentukan versi API Kubernetes yang digunakan
+kind: StatefulSet # Menggunakan StatefulSet untuk manajemen pod berbasis state
+metadata:
+  name: mongo-statefulset # Nama StatefulSet yang digunakan
+  labels:
+    app: mongo # Label untuk identifikasi dan pemilihan pod
+    tier: database # Menandakan bahwa ini adalah bagian dari database
+
+spec:
+  serviceName: mongo-service # StatefulSet akan menggunakan service ini untuk DNS
+  replicas: 1 # Menentukan jumlah replika pod MongoDB
+  minReadySeconds: 10 # Waktu minimum pod harus dalam keadaan siap sebelum dianggap running
+  selector:
+    matchLabels:
+      app: mongo # Pod yang memiliki label ini akan dikelola oleh StatefulSet
+      tier: database # Hanya pod dengan label ini yang akan dipilih
+
+  template:
+    metadata:
+      labels:
+        app: mongo # Label yang sesuai dengan selector agar pod dikenali
+        tier: database # Memastikan pod adalah bagian dari lapisan database
+    spec:
+      terminationGracePeriodSeconds: 10 # Waktu tunggu sebelum pod dihentikan
+      containers:
+        - name: mongo-container # Nama container dalam pod
+          image: ghcr.io/mzaedan/karsajobs:latest # Image Docker yang digunakan
+          imagePullPolicy: IfNotPresent # Menghindari pull image jika sudah ada secara lokal
+          ports:
+            - containerPort: 27017 # Port default untuk MongoDB
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME_FILE
+              value: /etc/mongo-secrets/MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD_FILE
+              value: /etc/mongo-secrets/MONGO_INITDB_ROOT_PASSWORD
+          volumeMounts:
+            - name: mongo-data-vol
+              mountPath: /data/db # Direktori penyimpanan data MongoDB
+            - name: mongo-config-vol
+              mountPath: /config # Direktori untuk konfigurasi tambahan
+            - name: mongo-secret-vol
+              mountPath: /etc/mongo-secrets # Direktori untuk kredensial MongoDB
+      volumes:
+        - name: mongo-data-vol
+          persistentVolumeClaim:
+            claimName: mongo-db-pvc # Menggunakan PVC untuk penyimpanan data
+        - name: mongo-config-vol
+          configMap:
+            name: mongo-config # Menggunakan ConfigMap untuk konfigurasi MongoDB
+            items:
+              - key: mongo.conf
+                path: mongo.conf
+        - name: mongo-secret-vol
+          secret:
+            secretName: mongo-db-secret # Menggunakan Secret untuk menyimpan kredensial

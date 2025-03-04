@@ -1,0 +1,10 @@
+Link Packages Github Container Registry : 
+
+KarsaJobs :
+https://ghcr.io/mzaedan/karsajobs:latest
+
+KarsaJobs-ui:
+https://ghcr.io/mzaedan/karsajobs:latest
+
+Link Repository Github:
+https://github.com/mzaedan/a433-microservices

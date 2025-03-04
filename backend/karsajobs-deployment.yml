@@ -1,0 +1,40 @@
+apiVersion: apps/v1 # Menentukan versi API Kubernetes yang digunakan
+kind: Deployment # Menentukan bahwa objek yang dibuat adalah Deployment
+metadata: # Bagian metadata untuk informasi identifikasi objek
+  name: karsajobs-api # Nama dari Deployment ini
+  labels: # Label yang digunakan untuk mengelompokkan objek
+    app: karsajobs-api
+    tier: backend
+spec: # Spesifikasi Deployment
+  replicas: 1 # Menentukan jumlah replika Pod yang dijalankan
+  selector: # Selector untuk mencocokkan Pod berdasarkan label tertentu
+    matchLabels:
+      app: karsajobs-api
+      tier: backend
+  template: # Template untuk membuat Pod yang dikelola oleh Deployment
+    metadata: # Metadata untuk Pod
+      labels: # Label yang diberikan pada Pod
+        app: karsajobs-api
+        tier: backend
+    spec: # Spesifikasi Pod
+      containers: # Daftar kontainer dalam Pod
+        - name: karsajobs # Nama kontainer
+          image: ghcr.io/mzaedan/karsajobs:latest # Image Docker yang digunakan untuk kontainer
+          imagePullPolicy: IfNotPresent # Menentukan kebijakan menarik image (hanya jika belum ada di lokal)
+          ports: # Menentukan port yang digunakan dalam kontainer
+            - containerPort: 8080 # Port yang digunakan oleh aplikasi di dalam kontainer
+          env: # Daftar variabel lingkungan (environment variables)
+            - name: APP_PORT # Variabel lingkungan untuk menentukan port aplikasi
+              value: "8080"
+            - name: MONGO_HOST # Variabel lingkungan untuk menentukan host MongoDB
+              value: karsajobs-db
+            - name: MONGO_USER # Variabel lingkungan untuk nama pengguna MongoDB (diambil dari Secret)
+              valueFrom:
+                secretKeyRef:
+                  name: karsajobs-db-secret
+                  key: MONGO_ROOT_USERNAME
+            - name: MONGO_PASS # Variabel lingkungan untuk kata sandi MongoDB (diambil dari Secret)
+              valueFrom:
+                secretKeyRef:
+                  name: karsajobs-db-secret
+                  key: MONGO_ROOT_PASSWORD

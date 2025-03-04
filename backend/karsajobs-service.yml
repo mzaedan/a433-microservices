@@ -1,0 +1,15 @@
+apiVersion: v1 # Menentukan versi API Kubernetes yang digunakan
+kind: Service # Jenis sumber daya yang akan dibuat, yaitu Service
+metadata: # Metadata yang digunakan untuk identifikasi objek
+  name: karsajobs-api # Menetapkan nama untuk Service
+  labels: # Label yang memudahkan pengelompokan dan identifikasi sumber daya
+    app: karsajobs-api
+    tier: backend
+spec: # Spesifikasi konfigurasi untuk Service
+  type: NodePort # Tipe Service yang memungkinkan akses dari luar Cluster melalui Node
+  selector: # Menentukan Pod yang akan dilayani berdasarkan label tertentu
+    app: karsajobs-api
+    tier: backend
+  ports: # Konfigurasi port yang akan diekspos oleh Service
+    - port: 8080 # Port yang akan diakses dalam Cluster
+      nodePort: 30011 # Port yang dipetakan ke Node untuk akses eksternal
