@@ -1,41 +1,29 @@
-#!/bin/bash
+#!/bin/sh
 
-# Mendefinisikan variabel yang digunakan untuk menyimpan nama akun GitHub
-GITHUB_USERNAME="mzaedan"
+# Menetapkan variabel untuk nama image, versi image, dan akun GitHub yang digunakan
+image_name="karsajobs"
+image_version="latest"
+github_account="mzaedan"
 
-# Masuk ke direktori backend (karsajobs) untuk membangun image backend
-cd karsajobs
+# Membangun image Docker
+echo -e "Memulai proses build image Docker..."
+docker build . -t $image_name:$image_version
 
-# Membangun Docker image untuk backend dengan nama sesuai format GitHub Container Registry
-echo "Building Docker image for backend..."
-docker build -t ghcr.io/$GITHUB_USERNAME/karsajobs:latest .
+# Menampilkan daftar image Docker yang tersimpan di lokal
+echo -e "\nMenampilkan daftar image Docker yang tersedia di lokal..."
+docker images
 
-# Melakukan login ke GitHub Container Registry menggunakan token akses
-echo "Logging in to GitHub Container Registry..."
-echo "GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
+# Menandai ulang image agar sesuai dengan format GitHub Container Registry
+echo -e "\nMenambahkan tag baru pada image agar sesuai dengan format GitHub Container Registry..."
+docker tag $image_name:$image_version ghcr.io/$github_account/$image_name:$image_version
+docker images
 
-# Mengunggah image backend ke GitHub Container Registry
-echo "Pushing backend image to GitHub Container Registry..."
-docker push ghcr.io/$GITHUB_USERNAME/karsajobs:latest
+# Melakukan autentikasi ke GitHub Container Registry
+echo -e "\nMelakukan login ke GitHub Container Registry..."
+docker login ghcr.io -u $github_account
 
-echo "Backend image successfully pushed!"
+# Mengunggah image Docker ke GitHub Container Registry
+echo -e "\nMengupload image ke GitHub Container Registry..."
+docker push ghcr.io/$github_account/$image_name:$image_version
 
-# Masuk ke direktori frontend (karsajobs-ui) untuk membangun image frontend
-cd ../karsajobs-ui
-
-# Membangun Docker image untuk frontend dengan nama sesuai format GitHub Container Registry
-echo "Building Docker image for frontend..."
-docker build -t ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest .
-
-# Melakukan login ke GitHub Container Registry kembali (jika diperlukan)
-echo "Logging in to GitHub Container Registry..."
-echo "GITHUB_TOKEN" | docker login ghcr.io -u $GITHUB_USERNAME --password-stdin
-
-# Mengunggah image frontend ke GitHub Container Registry
-echo "Pushing frontend image to GitHub Container Registry..."
-docker push ghcr.io/$GITHUB_USERNAME/karsajobs-ui:latest
-
-echo "Frontend image successfully pushed!"
-
-# Menampilkan pesan bahwa seluruh proses telah selesai
-echo "All images have been successfully built and pushed."
+echo -e "\nProses selesai."
