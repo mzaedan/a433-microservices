@@ -31,10 +31,10 @@ spec: # Spesifikasi Deployment
             - name: MONGO_USER # Variabel lingkungan untuk nama pengguna MongoDB (diambil dari Secret)
               valueFrom:
                 secretKeyRef:
-                  name: karsajobs-db-secret
+                  name: mongo-db-secret
                   key: MONGO_ROOT_USERNAME
             - name: MONGO_PASS # Variabel lingkungan untuk kata sandi MongoDB (diambil dari Secret)
               valueFrom:
                 secretKeyRef:
-                  name: karsajobs-db-secret
+                  name: mongo-db-secret
                   key: MONGO_ROOT_PASSWORD

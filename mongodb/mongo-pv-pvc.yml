@@ -1,53 +1,26 @@
 apiVersion: v1 # Versi API Kubernetes yang digunakan
-kind: PersistentVolume # Menentukan bahwa ini adalah PersistentVolume (PV)
-metadata:
-  name: mongo-db-pv # Nama untuk PersistentVolume
-  labels: # Label untuk mengelompokkan atau menandai sumber daya
-    type: local # Tipe penyimpanan lokal
-spec:
-  storageClassName: manual # Nama storage class yang akan digunakan (manual provisioning)
-  capacity:
-    storage: 1Gi # Menetapkan kapasitas penyimpanan sebesar 1GiB
-  accessModes:
-    - ReadWriteOnce # Mode akses di mana PV hanya bisa digunakan oleh satu Node dalam satu waktu
-  hostPath:
-    path: /mnt/mongo-data # Direktori pada host yang akan digunakan untuk penyimpanan data MongoDB
+kind: PersistentVolume # Mendefinisikan sumber daya PersistentVolume (PV)
+metadata: # Informasi metadata untuk identifikasi objek
+  name: karsajobs-db-pv # Nama PersistentVolume
+  labels: # Label untuk klasifikasi dan pengelompokan
+    type: local # Menandakan bahwa volume bersifat lokal
+spec: # Spesifikasi konfigurasi PersistentVolume
+  storageClassName: manual # Menentukan storage class dengan nama "manual"
+  capacity: # Kapasitas penyimpanan yang dialokasikan
+    storage: 1Gi # Menyediakan ruang penyimpanan sebesar 1 GiB
+  accessModes: # Mode akses untuk penggunaan volume
+    - ReadWriteOnce # Volume dapat dibaca dan ditulis oleh satu Node dalam satu waktu
+  hostPath: # Menentukan lokasi penyimpanan pada host
+    path: /mnt/data # Direktori penyimpanan di host
 ---
 apiVersion: v1 # Versi API Kubernetes yang digunakan
-kind: PersistentVolumeClaim # Menentukan bahwa ini adalah PersistentVolumeClaim (PVC)
-metadata:
-  name: mongo-db-pvc # Nama untuk PersistentVolumeClaim
-spec:
-  storageClassName: manual # Harus sesuai dengan storageClassName pada PV
-  accessModes:
-    - ReadWriteOnce # Mode akses yang sama seperti pada PV agar cocok
-  resources:
-    requests:
-      storage: 1Gi # Meminta penyimpanan sebesar 1GiB sesuai dengan kapasitas PV
----
-apiVersion: apps/v1 # Versi API Kubernetes untuk Deployment
-kind: Deployment # Menentukan bahwa ini adalah Deployment untuk aplikasi
-metadata:
-  name: mongo-deployment # Nama Deployment
-spec:
-  replicas: 1 # Menjalankan satu replika MongoDB
-  selector:
-    matchLabels:
-      app: mongo # Label yang digunakan untuk pemilihan pod
-  template:
-    metadata:
-      labels:
-        app: mongo # Label yang sesuai dengan selector Deployment
-    spec:
-      containers:
-        - name: mongo-container # Nama container
-          image: ghcr.io/mzaedan/karsajobs:latest # Image yang digunakan
-          ports:
-            - containerPort: 27017 # Port default MongoDB
-          volumeMounts:
-            - name: mongo-storage # Volume yang akan dipasang
-              mountPath: /data/db # Direktori di dalam container untuk menyimpan data MongoDB
-      volumes:
-        - name: mongo-storage
-          persistentVolumeClaim:
-            claimName: mongo-db-pvc # Menggunakan PVC yang telah dibuat
+kind: PersistentVolumeClaim # Mendefinisikan sumber daya PersistentVolumeClaim (PVC)
+metadata: # Informasi metadata untuk identifikasi objek
+  name: karsajobs-db-pvc # Nama PersistentVolumeClaim
+spec: # Spesifikasi konfigurasi PersistentVolumeClaim
+  storageClassName: manual # Menggunakan storage class dengan nama "manual"
+  accessModes: # Mode akses untuk klaim volume
+    - ReadWriteOnce # Volume hanya dapat diakses oleh satu Node dalam satu waktu untuk operasi baca/tulis
+  resources: # Permintaan sumber daya untuk penyimpanan
+    requests: # Menentukan kapasitas penyimpanan yang diminta
+      storage: 1Gi # Meminta alokasi penyimpanan sebesar 1 GiB

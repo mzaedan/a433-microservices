@@ -30,9 +30,9 @@ spec:
             - containerPort: 27017 # Port default untuk MongoDB
           env:
             - name: MONGO_INITDB_ROOT_USERNAME_FILE
-              value: /etc/mongo-credentials/MONGO_INITDB_ROOT_USERNAME
+              value: /etc/mongo-credentials/MONGO_ROOT_USERNAME
             - name: MONGO_INITDB_ROOT_PASSWORD_FILE
-              value: /etc/mongo-credentials/MONGO_INITDB_ROOT_PASSWORD
+              value: /etc/mongo-credentials/MONGO_ROOT_PASSWORD
           volumeMounts:
             - name: mongo-data-vol
               mountPath: /data/db # Direktori penyimpanan data MongoDB
@@ -43,13 +43,10 @@ spec:
       volumes:
         - name: mongo-data-vol
           persistentVolumeClaim:
-            claimName: mongo-db-pvc # Menggunakan PVC untuk penyimpanan data
+            claimName: karsajobs-db-pvc # Menggunakan PVC untuk penyimpanan data
         - name: mongo-config-vol
           configMap:
-            name: mongo-config # Menggunakan ConfigMap untuk konfigurasi MongoDB
-            items:
-              - key: mongo.conf
-                path: mongo.conf
+            name: karsajobs-db-config # Menggunakan ConfigMap untuk konfigurasi MongoDB
         - name: mongo-secret-vol
           secret:
             secretName: mongo-db-secret # Menggunakan Secret untuk menyimpan kredensial
