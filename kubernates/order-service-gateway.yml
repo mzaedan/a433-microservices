@@ -1,0 +1,35 @@
+# Gateway: Mengatur lalu lintas masuk dan keluar dari mesh
+apiVersion: networking.istio.io/v1alpha3 # Versi API yang digunakan
+kind: Gateway # Jenis sumber daya yang dibuat, yaitu gateway
+metadata: # Metadata untuk identifikasi objek
+  name: order-service-gw # Nama objek gateway
+spec: # Spesifikasi konfigurasi gateway
+  selector: # Menentukan gateway yang digunakan berdasarkan label
+    istio: ingressgateway # Menggunakan Istio Ingress Gateway
+  servers: # Konfigurasi server untuk gateway
+    - port: # Menentukan port yang digunakan gateway
+        number: 80 # Menggunakan port 80
+        name: http # Menandai port ini sebagai HTTP
+        protocol: HTTP # Menentukan protokol komunikasi sebagai HTTP
+      hosts: # Menentukan host yang dapat mengakses gateway
+        - "*" # Mengizinkan akses dari semua host
+---
+# VirtualService: Mengatur cara permintaan dialihkan ke service dalam mesh
+apiVersion: networking.istio.io/v1alpha3 # Versi API yang digunakan
+kind: VirtualService # Jenis sumber daya yang dibuat, yaitu virtual service
+metadata: # Metadata untuk identifikasi objek
+  name: order-service-vs # Nama objek virtual service
+spec: # Spesifikasi konfigurasi virtual service
+  hosts: # Menentukan host yang dapat mengakses virtual service
+    - "*" # Mengizinkan akses dari semua host
+  gateways: # Menentukan gateway yang digunakan
+    - order-service-gw # Menggunakan gateway yang sudah dibuat sebelumnya
+  http: # Konfigurasi aturan HTTP
+    - match: # Menentukan aturan pencocokan URL
+        - uri:
+            exact: /order # Hanya menangani permintaan dengan path "/order"
+      route: # Mengarahkan permintaan yang cocok ke tujuan yang sesuai
+        - destination: # Menentukan service tujuan dari permintaan
+            host: order-service # Mengarahkan ke service dengan nama 'order-service'
+            port:
+              number: 3000 # Service berjalan pada port 3000

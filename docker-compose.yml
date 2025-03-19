@@ -1,0 +1,64 @@
+# Menggunakan Docker Compose versi terbaru
+version: "3.8"
+
+# Mendefinisikan services yang akan dijalankan
+services:
+  order-svc:
+    # Menggunakan image dari GitHub Container Registry untuk order-service
+    image: ghcr.io/mzaedan/order-service:latest
+    # Melakukan port forwarding dari host ke container
+    ports:
+      - 3000:3000
+    # Menentukan bahwa service ini harus menunggu RabbitMQ berjalan sebelum dimulai
+    depends_on:
+      - rabbitmq-svc
+    # Menggunakan jaringan khusus untuk komunikasi antar container
+    networks:
+      - rabbitmq-net
+    # Menerapkan kebijakan restart agar container otomatis restart jika berhenti
+    restart: always
+    # Menetapkan variabel lingkungan untuk koneksi ke RabbitMQ
+    environment:
+      AMQP_URL: "amqp://guest:guest@rabbitmq-local:5672/"
+
+  shipping-svc:
+    # Menggunakan image dari GitHub Container Registry untuk shipping-service
+    image: ghcr.io/mzaedan/shipping-service:latest
+    # Melakukan port forwarding dari host ke container
+    ports:
+      - 3001:3001
+    # Menentukan bahwa service ini harus menunggu RabbitMQ berjalan sebelum dimulai
+    depends_on:
+      - rabbitmq-svc
+    # Menggunakan jaringan khusus untuk komunikasi antar container
+    networks:
+      - rabbitmq-net
+    # Menerapkan kebijakan restart agar container otomatis restart jika berhenti
+    restart: always
+    # Menetapkan variabel lingkungan untuk koneksi ke RabbitMQ
+    environment:
+      AMQP_URL: "amqp://guest:guest@rabbitmq-local:5672/"
+
+  rabbitmq-svc:
+    # Menggunakan image RabbitMQ dengan fitur manajemen dari Docker Hub
+    image: rabbitmq:3.11-management
+    # Menentukan nama container agar mudah dikenali
+    container_name: "rabbitmq-local"
+    # Melakukan port forwarding untuk komunikasi dan UI manajemen RabbitMQ
+    ports:
+      - 5672:5672 # Port utama RabbitMQ untuk komunikasi message broker
+      - 15672:15672 # Port UI management RabbitMQ
+    # Memetakan volume untuk menyimpan data dan log secara persisten
+    volumes:
+      - ~/.docker/rabbitmq/data/:/var/lib/rabbitmq/ # Penyimpanan data RabbitMQ
+      - ~/.docker/rabbitmq/log/:/var/log/rabbitmq/ # Penyimpanan log RabbitMQ
+    # Menggunakan jaringan khusus untuk komunikasi antar container
+    networks:
+      - rabbitmq-net
+    # Menerapkan kebijakan restart agar container otomatis restart jika berhenti
+    restart: always
+
+# Mendefinisikan jaringan custom dengan tipe bridge untuk komunikasi antar container
+networks:
+  rabbitmq-net:
+    driver: bridge

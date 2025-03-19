@@ -1,0 +1,49 @@
+# Service: Mengelola akses ke aplikasi dalam cluster Kubernetes
+apiVersion: v1 # Versi API Kubernetes yang digunakan
+kind: Service # Jenis sumber daya yang dibuat, yaitu Service
+metadata: # Metadata untuk identifikasi objek
+  name: shipping-service # Nama objek Service
+  labels: # Label untuk mengelompokkan dan mengidentifikasi resource
+    app: shipping-service
+    tier: consumer
+spec: # Spesifikasi konfigurasi Service
+  selector: # Menentukan Pod mana yang harus dilayani oleh Service ini
+    app: shipping-service
+    tier: consumer
+  ports: # Konfigurasi port yang diekspos oleh Service
+    - name: http-nodejs # Nama port yang digunakan
+      port: 3001 # Port yang dapat diakses dalam cluster
+---
+# Deployment: Mengelola replikasi dan pembaruan aplikasi
+apiVersion: apps/v1 # Versi API Kubernetes yang digunakan
+kind: Deployment # Jenis sumber daya yang dibuat, yaitu Deployment
+metadata: # Metadata untuk identifikasi objek
+  name: shipping-service # Nama objek Deployment
+  labels: # Label untuk mengelompokkan dan mengidentifikasi resource
+    app: shipping-service
+    tier: consumer
+spec: # Spesifikasi konfigurasi Deployment
+  replicas: 1 # Menentukan jumlah replika Pod yang akan dibuat
+  selector: # Menentukan Pod mana yang akan dikelola oleh Deployment
+    matchLabels:
+      app: shipping-service
+      tier: consumer
+  template: # Template untuk membuat Pod yang dikelola oleh Deployment
+    metadata: # Metadata untuk identifikasi Pod
+      labels: # Label yang diterapkan pada Pod
+        app: shipping-service
+        tier: consumer
+    spec: # Spesifikasi konfigurasi Pod
+      containers: # Daftar kontainer dalam Pod
+        - name: shipping-service # Nama kontainer dalam Pod
+          image: ghcr.io/mzaedan/shipping-service:latest # Image Docker yang digunakan untuk kontainer
+          ports: # Konfigurasi port yang digunakan oleh kontainer
+            - containerPort: 3001 # Port yang digunakan dalam kontainer
+          env: # Daftar variabel environment yang digunakan dalam kontainer
+            - name: AMQP_PASSWORD # Variabel untuk menyimpan password AMQP
+              valueFrom:
+                secretKeyRef: # Mengambil nilai dari Secret Kubernetes
+                  name: rabbitmq # Nama Secret yang digunakan
+                  key: rabbitmq-password # Kunci yang berisi password RabbitMQ
+            - name: AMQP_URL # Variabel untuk alamat URL RabbitMQ
+              value: "amqp://user:$(AMQP_PASSWORD)@rabbitmq-headless:5672/" # Format URL koneksi ke RabbitMQ
