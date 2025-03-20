@@ -2,7 +2,7 @@
 apiVersion: networking.istio.io/v1alpha3 # Versi API yang digunakan
 kind: Gateway # Jenis sumber daya yang dibuat, yaitu gateway
 metadata: # Metadata untuk identifikasi objek
-  name: order-service-gw # Nama objek gateway
+  name: order-service-gateway # Nama objek gateway
 spec: # Spesifikasi konfigurasi gateway
   selector: # Menentukan gateway yang digunakan berdasarkan label
     istio: ingressgateway # Menggunakan Istio Ingress Gateway
@@ -23,7 +23,7 @@ spec: # Spesifikasi konfigurasi virtual service
   hosts: # Menentukan host yang dapat mengakses virtual service
     - "*" # Mengizinkan akses dari semua host
   gateways: # Menentukan gateway yang digunakan
-    - order-service-gw # Menggunakan gateway yang sudah dibuat sebelumnya
+    - order-service-gateway # Menggunakan gateway yang sudah dibuat sebelumnya
   http: # Konfigurasi aturan HTTP
     - match: # Menentukan aturan pencocokan URL
         - uri:
